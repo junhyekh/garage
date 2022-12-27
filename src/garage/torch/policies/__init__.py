@@ -11,7 +11,8 @@ from garage.torch.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.torch.policies.policy import Policy
 from garage.torch.policies.tanh_gaussian_mlp_policy import (
     TanhGaussianMLPPolicy)
-
+from garage.torch.policies.custom import Policy as CP
+from garage.torch.policies.custom import Qfunction
 __all__ = [
     'CategoricalCNNPolicy',
     'DeterministicMLPPolicy',
@@ -21,4 +22,6 @@ __all__ = [
     'Policy',
     'TanhGaussianMLPPolicy',
     'ContextConditionedPolicy',
+    'CP',
+    'Qfunction',
 ]

@@ -183,14 +183,13 @@ class ContextConditionedPolicy(nn.Module):
         task_z = torch.cat(task_z, dim=0)
 
         # run policy, get log probs and new actions
-        obs_z = torch.cat([obs, task_z.detach()], dim=1)
-        dist = self._policy(obs_z)[0]
-        pre_tanh, actions = dist.rsample_with_pre_tanh_value()
-        log_pi = dist.log_prob(value=actions, pre_tanh_value=pre_tanh)
-        log_pi = log_pi.unsqueeze(1)
-        mean = dist.mean.to('cpu').detach().numpy()
-        log_std = (dist.variance**.5).log().to('cpu').detach().numpy()
-
+        output = self._policy.get_distribution(obs, task_z.detach())
+        actions = output["action"]
+        mean = output["mean"]
+        log_std = output["log_std"]
+        log_pi = output["log_prob"]
+        pre_tanh = output['pre_tanh_value']
+   
         return (actions, mean, log_std, log_pi, pre_tanh), task_z
 
     def get_action(self, obs):
@@ -211,8 +210,7 @@ class ContextConditionedPolicy(nn.Module):
         """
         z = self.z
         obs = torch.as_tensor(obs[None], device=global_device()).float()
-        obs_in = torch.cat([obs, z], dim=1)
-        action, info = self._policy.get_action(obs_in)
+        action, info = self._policy.get_action(obs, z)
         return action, info
 
     def compute_kl_div(self):
